@@ -1,25 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react'
+import "./App.css"
+import Countries from "./components/countries"
+
 
 function App() {
+const url = "https://restcountries.com/v3.1/all"
+
+  const [isLoading , setIsLoading] = useState(true);
+  const [error , setError] = useState(null);
+  const [countries , setCountries] = useState([]);
+
+    
+  const handleRemoveCountry = (name) =>{
+    const filter = countries.filter((country)=> country.name.common !== name)
+    setCountries(filter)
+  }
+
+
+  useEffect(()=>{
+    fetch(url)
+    .then((res)=>{
+     if(!res.ok){
+       throw Error("your Data fetch was not successfully")
+     } else {
+       return res.json()
+     }
+    })
+    .then((data)=>{
+     setCountries(data)
+     setIsLoading(false)
+     setError(null)
+    })
+    .catch((error)=>{
+     setIsLoading(false)
+     setError(error)
+    })
+  },[])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Country App</h1>
+      {countries && <Countries countries={countries} onRemoveCountry={handleRemoveCountry}/>}
+      {isLoading && <h2>Loading...</h2>}
+      {error && <p>{error}</p>}
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
